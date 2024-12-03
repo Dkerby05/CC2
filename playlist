@@ -1,0 +1,149 @@
+class SongNode {
+    String songName;
+    SongNode next;
+    SongNode prev;
+
+    public SongNode(String songName) {
+        this.songName = songName;
+        this.next = this; // Points to itself (initially circular)
+        this.prev = this; // Points to itself (initially circular)
+    }
+}
+
+class Playlist {
+    private SongNode currentSong;
+    private int size;
+
+    public Playlist() {
+        currentSong = null;
+        size = 0;
+    }
+
+    // Add a song to the playlist
+    public void addSong(String songName) {
+        SongNode newSong = new SongNode(songName);
+
+        if (currentSong == null) {
+            currentSong = newSong;
+        } else {
+            SongNode lastSong = currentSong.prev;
+            lastSong.next = newSong;
+            newSong.prev = lastSong;
+            newSong.next = currentSong;
+            currentSong.prev = newSong;
+        }
+        size++;
+        System.out.println("Added: " + songName);
+    }
+
+    // Remove a song from the playlist
+    public void removeSong(String songName) {
+        if (currentSong == null) {
+            System.out.println("Playlist is empty.");
+            return;
+        }
+
+        SongNode current = currentSong;
+        do {
+            if (current.songName.equals(songName)) {
+                if (size == 1) {
+                    currentSong = null; // Only one song, now the list is empty
+                } else {
+                    current.prev.next = current.next;
+                    current.next.prev = current.prev;
+                    if (current == currentSong) {
+                        currentSong = current.next; // Move to the next song if current is removed
+                    }
+                }
+                size--;
+                System.out.println("Removed: " + songName);
+                return;
+            }
+            current = current.next;
+        } while (current != currentSong);
+
+        System.out.println("Song not found: " + songName);
+    }
+
+    // Move to the next song
+    public void nextSong() {
+        if (currentSong != null) {
+            currentSong = currentSong.next;
+            System.out.println("Now playing: " + currentSong.songName);
+        } else {
+            System.out.println("Playlist is empty.");
+        }
+    }
+
+    // Move to the previous song
+    public void prevSong() {
+        if (currentSong != null) {
+            currentSong = currentSong.prev;
+            System.out.println("Now playing: " + currentSong.songName);
+        } else {
+            System.out.println("Playlist is empty.");
+        }
+    }
+
+    // Display the current song
+    public void showCurrentSong() {
+        if (currentSong != null) {
+            System.out.println("Current song: " + currentSong.songName);
+        } else {
+            System.out.println("Playlist is empty.");
+        }
+    }
+
+    // Display all songs in the playlist
+    public void displayPlaylist() {
+        if (currentSong == null) {
+            System.out.println("Playlist is empty.");
+            return;
+        }
+
+        SongNode current = currentSong;
+        do {
+            System.out.println(current.songName);
+            current = current.next;
+        } while (current != currentSong);
+    }
+}
+
+public class MusicPlaylistApp {
+    public static void main(String[] args) {
+        Playlist playlist = new Playlist();
+
+        // Add some songs to the playlist
+        playlist.addSong("Song 1");
+        playlist.addSong("Song 2");
+        playlist.addSong("Song 3");
+        playlist.addSong("Song 4");
+
+        // Display the playlist
+        System.out.println("\nFull Playlist:");
+        playlist.displayPlaylist();
+
+        // Show the current song
+        playlist.showCurrentSong();
+
+        // Play next and previous songs
+        playlist.nextSong(); // Song 2
+        playlist.nextSong(); // Song 3
+        playlist.prevSong(); // Song 2
+        playlist.prevSong(); // Song 1
+
+        // Remove a song from the playlist
+        playlist.removeSong("Song 2");
+
+        // Display the updated playlist
+        System.out.println("\nUpdated Playlist after removal:");
+        playlist.displayPlaylist();
+
+        // Show the current song
+        playlist.showCurrentSong();
+
+        // Try navigating again
+        playlist.nextSong(); // Song 3 (after removal)
+        playlist.prevSong(); // Song 1
+    }
+}
