@@ -1,0 +1,119 @@
+class PageNode {
+    String pageURL;
+    PageNode next;
+    PageNode prev;
+
+    public PageNode(String pageURL) {
+        this.pageURL = pageURL;
+        this.next = null;
+        this.prev = null;
+    }
+}
+
+class BrowserHistory {
+    private PageNode currentPage;
+    private int size;
+
+    public BrowserHistory() {
+        currentPage = null;
+        size = 0;
+    }
+
+    // Visit a new page (clears forward history if we had previously gone back)
+    public void visitNewPage(String pageURL) {
+        PageNode newPage = new PageNode(pageURL);
+
+        if (currentPage != null) {
+            // If we were not at the end of the list, clear forward history
+            currentPage.next = null;  // Discard forward history
+        }
+
+        if (currentPage == null) {
+            currentPage = newPage;  // First page visited
+        } else {
+            newPage.prev = currentPage;  // Link the current page to the new one
+            currentPage.next = newPage;  // Link the new page after the current one
+            currentPage = newPage;  // Move to the newly added page
+        }
+        size++;
+        System.out.println("Visited: " + pageURL);
+    }
+
+    // Go back to the previous page
+    public void goBack() {
+        if (currentPage != null && currentPage.prev != null) {
+            currentPage = currentPage.prev;
+            System.out.println("Went back to: " + currentPage.pageURL);
+        } else {
+            System.out.println("No previous page.");
+        }
+    }
+
+    // Go forward to the next page
+    public void goForward() {
+        if (currentPage != null && currentPage.next != null) {
+            currentPage = currentPage.next;
+            System.out.println("Went forward to: " + currentPage.pageURL);
+        } else {
+            System.out.println("No next page.");
+        }
+    }
+
+    // Show the current page URL
+    public void showCurrentPage() {
+        if (currentPage != null) {
+            System.out.println("Current page: " + currentPage.pageURL);
+        } else {
+            System.out.println("No pages visited yet.");
+        }
+    }
+
+    // Display the browsing history (all pages visited)
+    public void displayHistory() {
+        if (currentPage == null) {
+            System.out.println("No browsing history.");
+            return;
+        }
+
+        PageNode temp = currentPage;
+        // Print all visited pages up to the current page
+        while (temp != null) {
+            System.out.println(temp.pageURL);
+            temp = temp.prev;
+        }
+    }
+}
+
+public class BrowserApp {
+    public static void main(String[] args) {
+        BrowserHistory history = new BrowserHistory();
+
+        // Visit some pages
+        history.visitNewPage("Page 1");
+        history.visitNewPage("Page 2");
+        history.visitNewPage("Page 3");
+
+        // Display the current page and history
+        history.showCurrentPage();  // Should be Page 3
+        history.displayHistory();
+
+        // Go back to the previous page
+        history.goBack();  // Should go to Page 2
+        history.showCurrentPage();
+
+        // Go back again
+        history.goBack();  // Should go to Page 1
+        history.showCurrentPage();
+
+        // Visit a new page (should clear forward history)
+        history.visitNewPage("Page 4");
+
+        // Display the current page and history
+        history.showCurrentPage();  // Should be Page 4
+        history.displayHistory();
+
+        // Try going forward (there should be no forward history after visiting Page 4)
+        history.goForward();  // Should print "No next page."
+    }
+}
+
