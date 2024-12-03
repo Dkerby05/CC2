@@ -1,0 +1,121 @@
+class HistoryNode {
+    String url;
+    HistoryNode next;
+    HistoryNode prev;
+
+    // Constructor for a history node
+    public HistoryNode(String url) {
+        this.url = url;
+        this.next = null;
+        this.prev = null;
+    }
+}
+
+class BrowserHistory {
+    private HistoryNode currentPage;
+    private int size;
+
+    public BrowserHistory() {
+        currentPage = null;
+        size = 0;
+    }
+
+    // Visit a new page, clearing forward history
+    public void visitNewPage(String url) {
+        HistoryNode newPage = new HistoryNode(url);
+        
+        // If there's a current page, link it with the new page
+        if (currentPage != null) {
+            currentPage.next = newPage;
+            newPage.prev = currentPage;
+        }
+
+        // Clear forward history (no next page after visiting a new page)
+        newPage.next = null;
+
+        // Set the new page as the current page
+        currentPage = newPage;
+        size++;
+
+        System.out.println("Visited: " + url);
+    }
+
+    // Go back to the previous page
+    public void goBack() {
+        if (currentPage != null && currentPage.prev != null) {
+            currentPage = currentPage.prev;
+            System.out.println("Back to: " + currentPage.url);
+        } else {
+            System.out.println("No more pages to go back to.");
+        }
+    }
+
+    // Go forward to the next page
+    public void goForward() {
+        if (currentPage != null && currentPage.next != null) {
+            currentPage = currentPage.next;
+            System.out.println("Forward to: " + currentPage.url);
+        } else {
+            System.out.println("No more pages to go forward to.");
+        }
+    }
+
+    // Display the current page
+    public void showCurrentPage() {
+        if (currentPage != null) {
+            System.out.println("Current page: " + currentPage.url);
+        } else {
+            System.out.println("No page visited.");
+        }
+    }
+
+    // Display the entire history (for debugging or inspection)
+    public void displayHistory() {
+        if (currentPage == null) {
+            System.out.println("No history available.");
+            return;
+        }
+
+        HistoryNode current = currentPage;
+        System.out.println("Browser History:");
+        // Traverse backward from the current page to the first visited page
+        while (current != null) {
+            System.out.println(current.url);
+            current = current.prev;
+        }
+    }
+}
+
+public class BrowserHistoryApp {
+    public static void main(String[] args) {
+        BrowserHistory history = new BrowserHistory();
+
+        // Simulate browsing history
+        history.visitNewPage("https://www.google.com");
+        history.visitNewPage("https://www.youtube.com");
+        history.visitNewPage("https://www.github.com");
+
+        // Show the current page
+        history.showCurrentPage();
+
+        // Go back and show current page
+        history.goBack();
+        history.showCurrentPage();
+
+        // Go back again and show current page
+        history.goBack();
+        history.showCurrentPage();
+
+        // Visit a new page, clearing forward history
+        history.visitNewPage("https://www.stackoverflow.com");
+
+        // Show the current page after visiting a new page
+        history.showCurrentPage();
+
+        // Try to go forward (should not be possible as forward history was cleared)
+        history.goForward();
+
+        // Show the full history (for debugging)
+        history.displayHistory();
+    }
+}
